@@ -12,6 +12,7 @@
                     name="category_ids"
                     widget="many2many_tags"
                     options="{'color_field': 'color'}"
+                    groups="fieldservice.group_fsm_category"
                 />
                 <field name="calendar_id" />
             </tree>
@@ -23,7 +24,7 @@
         <field name="arch" type="xml">
             <search string="Search FSM Workers">
                 <field name="name" />
-                <field name="category_ids" />
+                <field name="category_ids" groups="fieldservice.group_fsm_category" />
                 <field name="territory_ids" groups="fieldservice.group_fsm_territory" />
                 <field name="location_ids" />
             </search>
@@ -63,7 +64,7 @@
                         name="web_ribbon"
                         title="Archived"
                         bg_color="bg-danger"
-                        attrs="{'invisible': [('active', '=', True)]}"
+                        invisible="active"
                     />
                     <field
                         name="active_partner"
@@ -73,12 +74,11 @@
                     />
                     <div
                         class="alert alert-info text-center o_form_header"
-                        attrs="{'invisible': [
-                            '|', '|',
-                            '&amp;', ('active', '=', True), ('active_partner', '=', True),
-                            '&amp;', ('active', '=', False), ('active_partner', '=', False),
-                            '&amp;', ('active', '=', True), ('active_partner', '=', False),
-                        ]}"
+                        invisible="
+                            (active and active_partner) or
+                            (not active and not active_partner) or
+                            (active and not active_partner)
+                        "
                         role="alert"
                     >
                         <a class="close" data-dismiss="alert" href="#">x</a>
@@ -97,9 +97,15 @@
                     <group>
                         <group>
                             <field
+                                name="partner_id"
+                                groups="base.group_no_one"
+                                readonly="1"
+                            />
+                            <field
                                 name="category_ids"
                                 widget="many2many_tags"
                                 options="{'color_field': 'color'}"
+                                groups="fieldservice.group_fsm_category"
                             />
                             <label for="street" string="Address" />
                             <div class="o_address_format">
